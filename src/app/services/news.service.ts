@@ -2,7 +2,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Article, ArticlesByCategoryAndPage, NewsResponse } from '../interfaces';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export const apiKey = environment.apikey;
@@ -13,7 +13,7 @@ export const apiUrl = environment.apiUrl;
 })
 export class NewsService {
 
-  private ArticlesByCategoryAndPage: ArticlesByCategoryAndPage = {
+  private articlesByCategoryAndPage: ArticlesByCategoryAndPage = {
 
   }
 
@@ -31,38 +31,56 @@ export class NewsService {
 
   getTopHeadlines(): Observable<Article[]> {
 
-    return this.executeQuery<NewsResponse>(`/top-headlines?category=business`)
-      .pipe (
-        map( ({ articles }) => articles )
-      );
+    return this.getTopHeadlinesByCategory('business');
+
+    // return this.executeQuery<NewsResponse>(`/top-headlines?category=business`)
+    //   .pipe (
+    //     map( ({ articles }) => articles )
+    //   );
   }
 
   getTopHeadlinesByCategory( category: string, loadMore: boolean = false ):Observable<Article[]>{
 
-    return this.executeQuery<NewsResponse>(`/top-headlines?category=${ category }`)
-      .pipe (
-        map( ({ articles }) => articles )
-      );
+    if( loadMore ){
+      return this.getArticlesByCategory( category );
+    }
+
+    if( this.articlesByCategoryAndPage[category] ){
+      return of(this.articlesByCategoryAndPage[category].articles);
+    }
+
+    return this.getArticlesByCategory( category );
+
   }
 
   private getArticlesByCategory( category: string ): Observable<Article[]>{
 
-    if (Object.keys( this.ArticlesByCategoryAndPage ).includes(category)){
+    if (Object.keys( this.articlesByCategoryAndPage ).includes(category)){
       // Ya existe
       // this.ArticlesByCategoryAndPage[category].page += 0;
     }else {
       // No existe
-      this.ArticlesByCategoryAndPage[category] = {
+      this.articlesByCategoryAndPage[category] = {
         page: 0,
         articles: []
       }
     }
 
-    const page = this.ArticlesByCategoryAndPage[category].page + 1;
+    const page = this.articlesByCategoryAndPage[category].page + 1;
 
     return this.executeQuery<NewsResponse>(`/top-headlines?category=${ category }&page=${ page }`)
     .pipe (
-      map( ({ articles }) => articles )
+      map( ({ articles }) => {
+
+        if ( articles.length === 0 ) return this.articlesByCategoryAndPage[category].articles;
+
+        this.articlesByCategoryAndPage[category] = {
+          page: page,
+          articles: [ ...this.articlesByCategoryAndPage[category].articles, ...articles ]
+        }
+
+        return this.articlesByCategoryAndPage[category].articles;
+      })
     );
 
   }
