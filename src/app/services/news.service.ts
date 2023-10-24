@@ -13,9 +13,7 @@ export const apiUrl = environment.apiUrl;
 })
 export class NewsService {
 
-  private articlesByCategoryAndPage: ArticlesByCategoryAndPage = {
-
-  }
+  private articlesByCategoryAndPage: ArticlesByCategoryAndPage = { };
 
   constructor(private http: HttpClient) { }
 
