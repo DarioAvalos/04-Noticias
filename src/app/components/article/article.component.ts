@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { Browser } from '@capacitor/browser';
 import { Article } from '../../interfaces';
 import { Platform } from '@ionic/angular';
 
@@ -14,21 +14,27 @@ export class ArticleComponent {
   @Input() index: any;
   
   constructor( 
-    private iab: InAppBrowser,
+    // private iab: InAppBrowser,
     private platform: Platform
     ) { }
 
   openArticle() {
 
     if ( this.platform.is('ios') || this.platform.is('android')){
-      const browser = this.iab.create( this.article.url );
-      browser.show();
-      return;
-    }
-    
-    window.open( this.article.url, '_blank')
+      const openCapacitorSite = async () => {
+        await Browser.open( this.article.url );
+      };
+    };
 
-  }
+     // if ( this.platform.is('ios') || this.platform.is('android')){
+     //   const browser = this.iab.create( this.article.url );
+     //   browser.show();
+     //   return;
+     // }
+    
+   window.open( this.article.url, '_blank')
+
+   }
 
   onClick(){}
 
