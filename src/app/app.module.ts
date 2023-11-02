@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 
 //Plugins
 import { Browser } from '@capacitor/browser';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 // import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
@@ -23,6 +24,7 @@ import { Browser } from '@capacitor/browser';
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     // InAppBrowser,
+    SocialSharing,
     
   ],
   bootstrap: [AppComponent],
