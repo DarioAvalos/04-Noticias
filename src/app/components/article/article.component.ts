@@ -3,6 +3,7 @@ import { Browser } from '@capacitor/browser';
 import { Article } from '../../interfaces';
 import { ActionSheetButton, ActionSheetController, Platform } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-article',
@@ -20,6 +21,7 @@ export class ArticleComponent {
     private platform: Platform,
     private actionSheetCtrl: ActionSheetController,
     private socialSharing: SocialSharing,
+    private storageService: StorageService,
     ) { }
 
   openArticle() {
@@ -42,10 +44,12 @@ export class ArticleComponent {
 
   async onOpenMenu(){
 
+    const articleInFavorite = this.storageService.articleInFavorite(this.article);
+
     const normalBtns: ActionSheetButton[] =  [
       {
-        text: 'Favorito',
-        icon: 'heart-outline',
+        text: articleInFavorite ? 'Remover favorito' : 'Favorito',
+        icon: articleInFavorite ? 'heart' : 'heart-outline',
         handler: () => this.onToggleArticle()
       },
       {
@@ -87,7 +91,7 @@ export class ArticleComponent {
   }
 
   onToggleArticle(){
-    console.log('toggle Favorite');
+    this.storageService.saveRemoveArticle(this.article);
   }
 
 }
