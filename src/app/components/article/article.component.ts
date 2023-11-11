@@ -46,7 +46,12 @@ export class ArticleComponent {
 
     const articleInFavorite = this.storageService.articleInFavorite(this.article);
 
-    const normalBtns: ActionSheetButton[] =  [
+    const normalBtns: ActionSheetButton[] = [
+      {
+        text: 'Compartir',
+        icon: 'share-outline',
+        handler: () => this.onShareArticle()
+      },
       {
         text: articleInFavorite ? 'Remover favorito' : 'Favorito',
         icon: articleInFavorite ? 'heart' : 'heart-outline',
@@ -80,18 +85,42 @@ export class ArticleComponent {
 
   onShareArticle() {
 
-    const { title, source, url } = this.article;
+    this.compartirNoticia();
 
-    this.socialSharing.share(
-      title,
-      source.name,
-      this.nan,
-      url
-    );
   }
 
   onToggleArticle(){
     this.storageService.saveRemoveArticle(this.article);
+  }
+
+  compartirNoticia(){
+
+    if ( this.platform.is("cordova")){
+
+      const { title, source, url } = this.article;
+      this.socialSharing.share(
+        title,
+        source.name,
+        this.nan,
+        url
+      );
+
+    }else {
+      if (navigator.share) {
+        navigator.share({
+          title: this.article.title,
+          text: this.article.source.name,
+          url: this.article.url,
+        })
+          .then(() => console.log('Successful share'))
+          .catch((error) => console.log('Error sharing', error));
+      }else{
+        console.log('No se pudo compartir porque no se soporta')
+      }
+    }
+
+
+
   }
 
 }
